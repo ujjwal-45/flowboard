@@ -1,10 +1,14 @@
 export declare global{
-    interface CtsOptions{
+    interface CtxOptions{
         lineWidth: number;
         lineColor: string;
     }
 
-    interface serverToClientEvents{
+    interface ServerToClientEvents{
         socket_draw: (newMoves: [number, number][], options: CtxOptions) => void;
+    }
+
+     interface ClientToServerEvents{
+        draw: (moves: [number, number][], options: CtxOptions) => void;
     }
 }

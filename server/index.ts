@@ -15,17 +15,27 @@ nextApp.prepare().then(async () => {
 
     const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
 
-    app.get("/healthy", async (_, res) => {
-        res.send("Health is important");
-    });
+    // app.get("/healthy", async (_, res) => {
+    //     res.send("Health is important");
+    // });
 
     io.on("connection", (socket) => {
         console.log("connection");
+
+        socket.join("global")
+
+        const allUsers = io.sockets.adapter.rooms.get("global");
+        if(allUsers) io.to("global").emit("users_in_room", [...allUsers])
 
         socket.on("draw", (moves, options) => {
             console.log("drawing");
             socket.broadcast.emit("socket_draw", moves, options);
             
+        });
+
+        socket.on("mouse_move", (x, y) => {
+            console.log("mouse move");
+            socket.broadcast.emit("mouse_moved", x, y, socket.id);
         });
 
         socket.on("disconnect", () => {

@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "nodemon server/index.ts",
+    "dev:client": "ts-node server/index.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "express": "^4.19.2",
+    "framer-motion": "^11.2.5",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
+    "react-icons": "^5.2.1",
+    "react-use": "^17.5.0",
     "recoil": "^0.7.7",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5"

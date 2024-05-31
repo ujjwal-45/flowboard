@@ -1,12 +1,12 @@
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewPortSize } from "@/common/hooks/useViewPortSize";
-import { useMotionValue, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react"
 import {useKeyPressEvent} from 'react-use'
-import { useDraw } from "../hooks/Canvas.hooks";
+import { useDraw, useSocketDraw } from "../hooks/Canvas.hooks";
 import {socket} from "@/common/lib/socket"
-import { drawFromSocket } from "../helpers/Canvas.helpers";
 import Minimap from "./Minimap";
+import { UseBoardPosition } from "../hooks/UseBoardPosition";
 
 
 const Canvas = () => {
@@ -20,22 +20,28 @@ const Canvas = () => {
     const { width, height } = useViewPortSize();
 
     useKeyPressEvent("Control", (e) => {
-        if (e.ctrlKey && !drawing) {
+        if (e.ctrlKey && !dragging) {
             setDragging(true);
         }
     });
 
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
+    // const x = useMotionValue(0);
+    // const y = useMotionValue(0);
+
+    const { x, y } = UseBoardPosition();
 
     const copyCanvasToSmall = () => {
-        if (canvasRef.current) {
-            smallCanvasRef.current?.getContext("2d")?.drawImage(canvasRef.current, 0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
+        if (canvasRef.current && smallCanvasRef.current) {
+            const smallCtx = smallCanvasRef.current.getContext("2d");
+            if (smallCtx) {
+                smallCtx.clearRect(0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
+                smallCtx.drawImage(canvasRef.current, 0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
+            }
         }
     };
 
-    const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } = useDraw(
-        ctx, dragging, -x.get(), -y.get(), copyCanvasToSmall
+    const { handleDraw, handleEndDrawing, handleStartDrawing,handleUndo, drawing } = useDraw(
+        ctx, dragging , copyCanvasToSmall
     );
 
     useEffect(() => {
@@ -56,40 +62,18 @@ const Canvas = () => {
 
     }, [dragging])
 
-    useEffect(() => {
-    let movesToDrawLater: [number, number][] = [];
-    let optionsToUseLater: CtxOptions = {
-      lineWidth: 0,
-      lineColor: "",
-    };
-
-    socket.on("socket_draw", (movesToDraw, socketOptions) => {
-      if (ctx && !drawing) {
-        drawFromSocket(movesToDraw, socketOptions, ctx, copyCanvasToSmall);
-      }
-      else {
-        movesToDrawLater = movesToDraw;
-        optionsToUseLater = socketOptions;
-      }
-    });
-    
-    return () => {
-      socket.off("socket_draw");
-      if (movesToDrawLater.length && ctx) {
-        drawFromSocket(movesToDrawLater, optionsToUseLater, ctx, copyCanvasToSmall);
-      }
-    };
-    
-
-    }, [drawing, ctx]);
+    useSocketDraw(ctx, drawing, copyCanvasToSmall);
     
     return (
         <div className="relative h-full w-full overflow-hidden">
+            <button className="absolute top-0 " onClick={handleUndo} >
+                Undo
+            </button>
             <motion.canvas
                 ref={canvasRef}
                 width={CANVAS_SIZE.width}
                 height={CANVAS_SIZE.height}
-                className={`bg-neutral-200 ${dragging && 'cursor-move'}`}
+                className={`bg-neutral-200 ${dragging && "cursor-move"}`}
                 style={{ x, y }}
 
                 drag={dragging}

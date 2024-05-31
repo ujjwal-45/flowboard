@@ -4,14 +4,31 @@ export declare global{
         lineColor: string;
     }
 
-    interface ServerToClientEvents{
-        socket_draw: (newMoves: [number, number][], options: CtxOptions) => void;
-        mouse_moved: (x: number, y: number, socketId: string) => void;
-        users_in_room: (socketIds: string[]) => void;
+    interface Move{
+        path: [number, number][];
+        options: CtxOptions;
     }
 
-     interface ClientToServerEvents{
-        draw: (moves: [number, number][], options: CtxOptions) => void;
+    type Room = Map<string, Move[]>;
+
+    interface ServerToClientEvents{
+        room: (room: string) => void;
+        created: (room: string) => void;
+        joined: (roomId: string, failed?: boolean) => void;
+        user_draw: (move : Move, userId : string) => void;
+        mouse_moved: (x: number, y: number, userId: string) => void;
+        user_disconnected: (socketId: string) => void;
+        user_undo: (userId: string) => void;
+        new_user: (userId: string) => void;
+    }
+
+    interface ClientToServerEvents{
+        draw: (move : Move) => void;
         mouse_move: (x: number, y: number) => void;
+        undo: () => void;
+        create_room: () => void;
+        join_room: (room: string) => void;
+        joined_room: () => void;
+        leave_room: () => void;
     }
 }

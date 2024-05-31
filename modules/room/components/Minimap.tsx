@@ -13,7 +13,7 @@ interface miniMapProps{
 const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
     
     ({ dragging, setMovedMinimap }, ref) => {
-        
+
     const { x, y } = UseBoardPosition();
     const containerRef = useRef<HTMLDivElement>(null)
     const { width, height } = useViewPortSize();
@@ -21,10 +21,10 @@ const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
     const miniY = useMotionValue(0);
 
     useEffect(() => {
-        miniX.onChange((newX) => {
+        miniX.on('change',(newX) => {
             if (!dragging) x.set(-newX * 10);
         });
-        miniY.onChange((newY) => {
+        miniY.on('change',(newY) => {
             if (!dragging) y.set(-newY * 10);
         });
 
@@ -46,16 +46,16 @@ const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
 
             />
             <motion.div
-                drag
+                drag={true}
                 dragConstraints={containerRef}
                 dragElastic={0}
                 dragTransition={{ power: 0, timeConstant: 0 }}
                 onDragStart={() => setMovedMinimap((prev) => !prev)}
                 onDragEnd={() => setMovedMinimap((prev: boolean) => !prev)}
-                className="absolute top-0 left-0 border-2 border-sky-500 rounded-lg"
+                className="absolute top-0 left-0 border-2 border-blue-500 rounded-lg"
                 style={{ width: width / 10, height: height / 10, x: miniX, y: miniY }}
                 animate={{ x: -x.get() / 10, y: -y.get() / 10 }}
-                transition={{duration : 0.1}}
+                transition={{duration : 0}}
                 
             >
 

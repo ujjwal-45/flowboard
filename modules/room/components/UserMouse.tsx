@@ -4,7 +4,7 @@ import { socket } from "@/common/lib/socket";
 import { motion } from "framer-motion";
 import { BsCursorFill } from "react-icons/bs";
 
-export const SocketMouse = ({ socketId }: { socketId: string }) => {
+export const UserMouse = ({ userId }: { userId: string }) => {
     const boardPosition = UseBoardPosition();
     
     const [x, setX] = useState(boardPosition.x.get());
@@ -12,8 +12,8 @@ export const SocketMouse = ({ socketId }: { socketId: string }) => {
     const [pos, setPos] = useState({ x: -1, y: -1 });
 
     useEffect(() => {
-        socket.on("mouse_moved", (newX, newY, socketIdMoved) => {
-            if (socketIdMoved === socketId) {
+        socket.on("mouse_moved", (newX : number, newY: number, socketIdMoved : string) => {
+            if (socketIdMoved === userId) {
                 setPos({ x: newX, y: newY });
             }
         });
@@ -21,7 +21,7 @@ export const SocketMouse = ({ socketId }: { socketId: string }) => {
         return () => {
             socket.off("mouse_moved");
         }
-    }, [socketId]);
+    }, [userId]);
 
     useEffect(() => {
         const unsubsribe = boardPosition.x.on("change", setX);
@@ -34,7 +34,7 @@ export const SocketMouse = ({ socketId }: { socketId: string }) => {
     }, [boardPosition.y]);
      
     return (
-        <motion.div className={`absolute top-0 left-0 ${pos.x === -1 && "hidden"}`}
+        <motion.div className={`absolute top-0 left-0 text-emerald-600 ${pos.x === -1 && "hidden"} pointer-events-none `}
             animate={{ x: pos.x + x, y: pos.y + y }}
             transition={{duration : 0.3, ease : "linear"}}
         >

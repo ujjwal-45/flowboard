@@ -24,6 +24,7 @@
     "moduleResolution": "node"
   },
   "include": [
+    "../common/types/global",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"

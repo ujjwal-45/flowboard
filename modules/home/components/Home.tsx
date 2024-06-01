@@ -1,4 +1,5 @@
 import { socket } from "@/common/lib/socket";
+import { useSetRoomId } from "@/common/recoil/room";
 import { useRouter } from "next/router";
 import { FormEvent, useEffect, useState } from "react"
 
@@ -7,13 +8,20 @@ const Home = () => {
     
     const router = useRouter();
 
+    const setAtomRoomId = useSetRoomId();
+
     useEffect(() => {
         socket.on("created", (roomIdFromServer) => {
+            setAtomRoomId(roomIdFromServer);
             router.push(roomIdFromServer);
         });
 
         socket.on("joined", (roomIdFromServer, falied) => {
-            if (!falied) router.push(roomIdFromServer);
+            if (!falied) {
+                setAtomRoomId(roomIdFromServer);
+                router.push(roomIdFromServer);
+            }
+                
             else {
                 console.log("failed to join the room");
             }
@@ -23,7 +31,7 @@ const Home = () => {
             socket.off("created");
             socket.off("joined");
         }
-    }, [router]);
+    }, [router, setAtomRoomId]);
 
     const handleCreateRoom = () => {
         socket.emit("create_room");
@@ -37,15 +45,15 @@ const Home = () => {
 
     return (
         <div className="flex flex-col items-center">
-            <h1 className="mt-20 text-xl font-extrabold leading-tight ">FlowBoard</h1>
-            <h3 className="text-2xl">Real Time WhiteBoard</h3>
+            <h1 className="mt-20 text-[6rem] font-extrabold leading-tight ">FlowBoard</h1>
+            <h3 className="text-xl">Real Time WhiteBoard</h3>
 
             <form className="mt-8 flex flex-col items-center gap-2" onSubmit={handleJoinRoom}>
                 <label htmlFor="room-id" className="self-start font-bold leading-tight">
                     Enter room id
                 </label>
 
-                <input className="rounded-xl border p-5 py-1"
+                <input className="rounded-xl border p-5 py-1 outline-none"
                     id="room-id"
                     value={roomId}
                     placeholder="Room id..."

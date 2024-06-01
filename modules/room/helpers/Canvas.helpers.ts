@@ -1,27 +1,28 @@
-import { CANVAS_SIZE } from "@/common/constants/canvasSize";
-
 
 export const handleMove = (move : Move, ctx: CanvasRenderingContext2D
 ) => {
   const { options, path } = move;
-  const tempCtx = ctx;
 
-  if (tempCtx) {
-    tempCtx.lineWidth = options.lineWidth;
-    tempCtx.strokeStyle = options.lineColor;
+  if (ctx) {
+    ctx.lineWidth = options.lineWidth;
+    ctx.strokeStyle = options.lineColor;
 
-    tempCtx.beginPath();
+    ctx.beginPath();
 
     path.forEach(([x, y]) => {
-      tempCtx.lineTo(x, y);
-      tempCtx.stroke();
+      ctx.lineTo(x, y);
     });
-    tempCtx.closePath();
+    ctx.stroke();
+    ctx.closePath();
   }
 };
 
-export const drawUndo = (ctx: CanvasRenderingContext2D, savedMoves: Move[], users: { [key: string]: Move[] }) => {
+export const drawAllMoves = (ctx: CanvasRenderingContext2D,movesWithoutUser: Move[], savedMoves: Move[], users: { [key: string]: Move[] }) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  movesWithoutUser.forEach((move) => {
+    handleMove(move, ctx);
+  })
 
   Object.values(users).forEach((user) => {
     user.forEach((move) => {

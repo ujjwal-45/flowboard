@@ -19,7 +19,7 @@ export const MousePosition = () => {
             socket.emit("mouse_move", getPos(docX, x), getPos(docY, y));
             prevPosition.current = { x: docX, y: docY };
         }
-    }, 300);
+    }, 25);
 
     return (
         <motion.div ref={ref}

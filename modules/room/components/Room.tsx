@@ -1,3 +1,4 @@
+import { useRoomId } from "@/common/recoil/room"
 import RoomContextProvider from "../context/Room.context"
 import Canvas from "./Canvas"
 import { MousePosition } from "./MousePosition"
@@ -5,6 +6,14 @@ import { MouseRenderer } from "./MouseRenderer"
 import { ToolBar } from "./ToolBar"
 
 const Room = () => {
+
+    const roomId = useRoomId();
+
+    if (!roomId) return (
+        <div>
+            <h1>No room Id</h1>
+        </div>
+    )
     return (
         <RoomContextProvider>
             <div className="relative h-full w-full overflow-hidden">

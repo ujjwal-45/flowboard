@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { socket } from '@/common/lib/socket'
 import { useOptions } from "@/common/recoil/options";
-import { drawUndo, handleMove } from "../helpers/Canvas.helpers";
+import { drawAllMoves, handleMove } from "../helpers/Canvas.helpers";
 import usersAtom, { useUsers } from "@/common/recoil/users";
 import { UseBoardPosition } from "./UseBoardPosition";
 import { getPos } from "@/common/lib/getPos";
 import { useSetRecoilState } from "recoil";
 
 
+const movesWithoutUser: Move[] = [];
 const savedMoves: Move[] = [];
-let moves : [number, number][] = [];
+let tempMoves : [number, number][] = [];
 
 export const useDraw = (ctx: CanvasRenderingContext2D | undefined,
     blocked: boolean,
@@ -38,7 +39,7 @@ export const useDraw = (ctx: CanvasRenderingContext2D | undefined,
             savedMoves.pop();
             socket.emit("undo");
 
-            drawUndo(ctx, savedMoves, users);
+            drawAllMoves(ctx,movesWithoutUser, savedMoves, users);
 
             handleEnd();
         }
@@ -66,6 +67,8 @@ export const useDraw = (ctx: CanvasRenderingContext2D | undefined,
         ctx.beginPath();
         ctx.lineTo(getPos(x,movedX), getPos(y,movedY));
         ctx.stroke();
+
+        tempMoves.push([getPos(x, movedX), getPos(y, movedY)]);
     };
 
     const handleEndDrawing = () => {
@@ -75,14 +78,15 @@ export const useDraw = (ctx: CanvasRenderingContext2D | undefined,
         ctx.closePath();
 
         const move: Move = {
-            path: moves,
+            path: tempMoves,
             options
         }
 
         savedMoves.push(move);
+        
+        tempMoves = []
         socket.emit("draw", move);
-         
-        moves = []
+        drawAllMoves(ctx, movesWithoutUser, savedMoves, users);
         handleEnd()
     };
 
@@ -93,7 +97,7 @@ export const useDraw = (ctx: CanvasRenderingContext2D | undefined,
        
         ctx.lineTo( getPos(x,movedX), getPos(y,movedY));
         ctx.stroke();
-        moves.push([getPos(x,movedX), getPos(y,movedY)]);
+        tempMoves.push([getPos(x,movedX), getPos(y,movedY)]);
     };
 
     return {
@@ -105,25 +109,31 @@ export const useDraw = (ctx: CanvasRenderingContext2D | undefined,
     }
 }
 
-export const useSocketDraw = (ctx : CanvasRenderingContext2D | undefined, drawing : boolean, handleEnd : () => void) => {
+export const useSocketDraw = (ctx : CanvasRenderingContext2D , drawing : boolean, handleEnd : () => void) => {
     
     const setUsers = useSetRecoilState(usersAtom);
 
     useEffect(() => {
-        socket.emit("joined_room");
-    }, []);
+        if(ctx) socket.emit("joined_room");
+    }, [ctx]);
 
     useEffect(() => {
-        socket.on("room", (roomJSON) => {
-            const room: Room = new Map(JSON.parse(roomJSON));
+        socket.on("room", (room, usersToParse) => {
+            const users = new Map<string, Move[]>(JSON.parse(usersToParse));
 
-            room.forEach((userMoves, userId) => {
-                if (ctx) userMoves.forEach((move) => handleMove(move, ctx));
-                handleEnd()
+            room.drawed.forEach((move) => {
+                handleMove(move, ctx);
+                movesWithoutUser.push(move);
+            });
 
-                setUsers((prevUsers) => ({ ...prevUsers, [userId]: userMoves }));
+            users.forEach((userMoves, userId) => {
+                userMoves.forEach((move) => handleMove(move, ctx));
+                setUsers((prevUsers) => ({...prevUsers, [userId]: userMoves}))
             })
-        })
+
+            handleEnd()
+        });
+
 
         return () => {
             socket.off("room");
@@ -175,7 +185,7 @@ export const useSocketDraw = (ctx : CanvasRenderingContext2D | undefined, drawin
                 newUsers[userId] = newUsers[userId].slice(0, -1);
 
                 if (ctx) {
-                    drawUndo(ctx, savedMoves, newUsers)
+                    drawAllMoves(ctx,movesWithoutUser, savedMoves, newUsers)
                     handleEnd()
                 }
 

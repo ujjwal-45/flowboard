@@ -1,8 +1,7 @@
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewPortSize } from "@/common/hooks/useViewPortSize";
-import { MotionValue, useMotionValue } from "framer-motion";
+import {motion, useAnimation, useMotionValue } from "framer-motion";
 import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
-import {motion} from 'framer-motion'
 import { UseBoardPosition } from "../hooks/UseBoardPosition";
 
 interface miniMapProps{
@@ -14,29 +13,36 @@ const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
     
     ({ dragging, setMovedMinimap }, ref) => {
 
-    const { x, y } = UseBoardPosition();
-    const containerRef = useRef<HTMLDivElement>(null)
-    const { width, height } = useViewPortSize();
-    const miniX = useMotionValue(0);
-    const miniY = useMotionValue(0);
+        const { x, y } = UseBoardPosition();
+        const containerRef = useRef<HTMLDivElement>(null)
+        const { width, height } = useViewPortSize();
+        const miniX = useMotionValue(0);
+        const miniY = useMotionValue(0);
+        const controls = useAnimation();
 
-    useEffect(() => {
-        miniX.on('change',(newX) => {
-            if (!dragging) x.set(-newX * 10);
-        });
-        miniY.on('change',(newY) => {
-            if (!dragging) y.set(-newY * 10);
-        });
+        useEffect(() => {
+            miniX.on('change', (newX) => {
+                if (!dragging) x.set(-newX * 10);
+            });
+            miniY.on('change', (newY) => {
+                if (!dragging) y.set(-newY * 10);
+            });
 
-        return () => {
-            miniX.clearListeners();
-            miniY.clearListeners();
-        }
+            return () => {
+                miniX.clearListeners();
+                miniY.clearListeners();
+            }
 
-    }, [dragging, miniX, miniY, x, y])
+        }, [dragging, miniX, miniY, x, y]);
+
+        useEffect(() => {
+            if (!dragging) {
+                controls.start({ x: -x.get() / 10, y: -y.get() / 10, transition: { duration: 0 } })
+            }
+        }, [x, y, dragging, controls]);
 
     return (
-        <div className="absolute right-10 top-10 z-50 bg-neutral-100 rounded-lg " ref={containerRef}
+        <div className="absolute right-10 top-10 z-50 overflow-hidden bg-neutral-100 rounded-lg " ref={containerRef}
         style={{width : CANVAS_SIZE.width / 10, height : CANVAS_SIZE.height / 10}} 
         >
             <canvas className="h-full w-full"
@@ -50,12 +56,12 @@ const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
                 dragConstraints={containerRef}
                 dragElastic={0}
                 dragTransition={{ power: 0, timeConstant: 0 }}
-                onDragStart={() => setMovedMinimap((prev) => !prev)}
-                onDragEnd={() => setMovedMinimap((prev: boolean) => !prev)}
-                className="absolute top-0 left-0 border-2 border-blue-500 rounded-lg"
+                onDragStart={() => setMovedMinimap(true)}
+                onDragEnd={() => setMovedMinimap(false)}
+                className="absolute top-0 left-0 cursor-grab border-2 border-blue-500 rounded-lg"
                 style={{ width: width / 10, height: height / 10, x: miniX, y: miniY }}
-                animate={{ x: -x.get() / 10, y: -y.get() / 10 }}
-                transition={{duration : 0}}
+                animate={controls}
+                // transition={{duration : 0}}
                 
             >
 

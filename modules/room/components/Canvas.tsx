@@ -67,7 +67,7 @@ const Canvas = () => {
     return (
         <div className="relative h-full w-full overflow-hidden">
             <button className="absolute top-0 " onClick={handleUndo} >
-                Undo
+                {/* Undo */}
             </button>
             <motion.canvas
                 ref={canvasRef}

@@ -1,8 +1,8 @@
-## Status
+# Status
 Current Status: 🚧 Unfinished - Work in Progress
 
-## Installation
-# clone the repo
+# Installation
+## clone the repo
 ```bash
 git clone
 # or 
@@ -10,7 +10,7 @@ download zip file
 ```
 
 
-# Getting Started
+## Getting Started
 
 First, install the dependencies:
 

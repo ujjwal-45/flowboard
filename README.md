@@ -1,3 +1,6 @@
+## Status
+Current Status: 🚧 Unfinished - Work in Progress
+
 ## clone the repo
 ```bash
 git clone

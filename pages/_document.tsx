@@ -5,6 +5,9 @@ export default function Document() {
     <Html lang="en">
       <Head />
       <body>
+        <div id="portal">
+
+        </div>
         <Main />
         <NextScript />
       </body>

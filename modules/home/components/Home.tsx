@@ -1,7 +1,9 @@
 import { socket } from "@/common/lib/socket";
+import { useModal } from "@/common/recoil/modal";
 import { useSetRoomId } from "@/common/recoil/room";
 import { useRouter } from "next/router";
 import { FormEvent, useEffect, useState } from "react"
+import NotFound from "../modals/NotFound";
 
 const Home = () => {
     const [roomId, setRoomId] = useState("");
@@ -9,6 +11,8 @@ const Home = () => {
     const router = useRouter();
 
     const setAtomRoomId = useSetRoomId();
+
+    const { openModal } = useModal();
 
     useEffect(() => {
         socket.on("created", (roomIdFromServer) => {
@@ -23,7 +27,7 @@ const Home = () => {
             }
                 
             else {
-                console.log("failed to join the room");
+                openModal(<NotFound id={roomId} />);
             }
         });
 
@@ -44,8 +48,8 @@ const Home = () => {
     }
 
     return (
-        <div className="flex flex-col items-center">
-            <h1 className="mt-20 text-[6rem] font-extrabold leading-tight ">FlowBoard</h1>
+        <div className="flex flex-col items-center ">
+            <h1 className="mt-20 text-[6rem] font-bold leading-tight "><span>FlowBoard</span></h1>
             <h3 className="text-xl">Real Time WhiteBoard</h3>
 
             <form className="mt-8 flex flex-col items-center gap-2" onSubmit={handleJoinRoom}>

@@ -1,3 +1,4 @@
+import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 
 export const handleMove = (move : Move, ctx: CanvasRenderingContext2D
 ) => {
@@ -17,20 +18,43 @@ export const handleMove = (move : Move, ctx: CanvasRenderingContext2D
   }
 };
 
-export const drawAllMoves = (ctx: CanvasRenderingContext2D,movesWithoutUser: Move[], savedMoves: Move[], users: { [key: string]: Move[] }) => {
+export const drawAllMoves = (ctx: CanvasRenderingContext2D, room: ClientRoom) => {
+  
+  const {usersMoves, movesWithoutUser, myMoves } = room;
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  drawBackground(ctx);
 
   movesWithoutUser.forEach((move) => {
     handleMove(move, ctx);
   })
 
-  Object.values(users).forEach((user) => {
-    user.forEach((move) => {
-      handleMove(move, ctx);
-    });
+  usersMoves.forEach((userMove) => {
+    userMove.forEach((move) => 
+      handleMove(move, ctx));
   });
 
-  savedMoves.forEach((move) => {
+  myMoves.forEach((move) => {
     handleMove(move, ctx);
   });
 };
+
+
+export const drawBackground = (ctx: CanvasRenderingContext2D) => {
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "#ccc";
+
+  for (let i = 0; i < CANVAS_SIZE.height; i += 100){
+    ctx.beginPath();
+    ctx.moveTo(0,i);
+    ctx.lineTo(ctx.canvas.width, i);
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < CANVAS_SIZE.width; i += 100){
+    ctx.beginPath();
+    ctx.moveTo(i,0);
+    ctx.lineTo(i,ctx.canvas.height);
+    ctx.stroke();
+  }
+}

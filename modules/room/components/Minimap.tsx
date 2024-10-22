@@ -4,12 +4,12 @@ import {motion, useAnimation, useMotionValue } from "framer-motion";
 import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
 import { UseBoardPosition } from "../hooks/UseBoardPosition";
 
-interface miniMapProps{
-    dragging: boolean;
-    setMovedMinimap: Dispatch<SetStateAction<boolean>>; 
+interface miniMapProps {
+  dragging: boolean;
+  setMovedMinimap: Dispatch<SetStateAction<boolean>>;
 }
 
-const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
+const Minimap = forwardRef<HTMLCanvasElement,miniMapProps>(
     
     ({ dragging, setMovedMinimap }, ref) => {
 
@@ -18,7 +18,7 @@ const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
         const { width, height } = useViewPortSize();
         const miniX = useMotionValue(0);
         const miniY = useMotionValue(0);
-        const controls = useAnimation();
+        // const controls = useAnimation();
 
         useEffect(() => {
             miniX.on('change', (newX) => {
@@ -35,14 +35,14 @@ const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
 
         }, [dragging, miniX, miniY, x, y]);
 
-        useEffect(() => {
-            if (!dragging) {
-                controls.start({ x: -x.get() / 10, y: -y.get() / 10, transition: { duration: 0 } })
-            }
-        }, [x, y, dragging, controls]);
+        // useEffect(() => {
+        //     if (!dragging) {
+        //         controls.start({ x: -x.get() / 10, y: -y.get() / 10, transition: { duration: 0 } })
+        //     }
+        // }, [x, y, dragging, controls]);
 
     return (
-        <div className="absolute right-10 top-10 z-50 overflow-hidden bg-neutral-100 rounded-lg " ref={containerRef}
+        <div className="absolute right-10 top-10 z-3f0 bg-neutral-100 rounded-lg " ref={containerRef}
         style={{width : CANVAS_SIZE.width / 10, height : CANVAS_SIZE.height / 10}} 
         >
             <canvas className="h-full w-full"
@@ -52,16 +52,16 @@ const Minimap = forwardRef<HTMLCanvasElement, miniMapProps>(
 
             />
             <motion.div
-                drag={true}
+                drag
                 dragConstraints={containerRef}
                 dragElastic={0}
                 dragTransition={{ power: 0, timeConstant: 0 }}
-                onDragStart={() => setMovedMinimap(true)}
-                onDragEnd={() => setMovedMinimap(false)}
-                className="absolute top-0 left-0 cursor-grab border-2 border-blue-500 rounded-lg"
+                onDragStart={() => setMovedMinimap((prev)=> !prev)}
+                onDragEnd={() => setMovedMinimap((prev) => !prev)}
+                className="absolute top-0 left-0 cursor-grab border-2 border-blue-500 rounded-lg "
                 style={{ width: width / 10, height: height / 10, x: miniX, y: miniY }}
-                animate={controls}
-                // transition={{duration : 0}}
+                animate={{x: -x.get()/10, y:-y.get()/10}}
+                transition={{duration : 0}}
                 
             >
 

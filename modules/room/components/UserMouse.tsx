@@ -4,7 +4,7 @@ import { socket } from "@/common/lib/socket";
 import { motion } from "framer-motion";
 import { BsCursorFill } from "react-icons/bs";
 
-export const UserMouse = ({ userId }: { userId: string }) => {
+const UserMouse = ({ userId, username }: { userId: string, username:string }) => {
     const boardPosition = UseBoardPosition();
     
     const [x, setX] = useState(boardPosition.x.get());
@@ -12,7 +12,7 @@ export const UserMouse = ({ userId }: { userId: string }) => {
     const [pos, setPos] = useState({ x: -1, y: -1 });
 
     useEffect(() => {
-        socket.on("mouse_moved", (newX : number, newY: number, socketIdMoved : string) => {
+        socket.on("mouse_moved", (newX: number, newY: number, socketIdMoved: string) => {
             if (socketIdMoved === userId) {
                 setPos({ x: newX, y: newY });
             }
@@ -36,9 +36,12 @@ export const UserMouse = ({ userId }: { userId: string }) => {
     return (
         <motion.div className={`absolute top-0 left-0 text-emerald-600 ${pos.x === -1 && "hidden"} pointer-events-none `}
             animate={{ x: pos.x + x, y: pos.y + y }}
-            transition={{duration : 0.1, ease : "linear"}}
+            transition={{ duration: 0.1, ease: "linear" }}
         >
-        <BsCursorFill className="-rotate-90" />
+            <BsCursorFill className="-rotate-90" />
+            <p className="ml-2">{ username}</p>
         </motion.div>
     )
-}
+};
+
+export default UserMouse;

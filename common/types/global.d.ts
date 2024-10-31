@@ -2,12 +2,27 @@ export declare global{
     interface CtxOptions{
         lineWidth: number;
         lineColor: string;
+        erase: boolean;
     }
 
     interface Move{
         path: [number, number][];
         options: CtxOptions;
+        
     }
+
+    interface User{
+        name: string,
+        color:string,
+    }
+
+    interface Message{
+        userId: string,
+        username: string,
+        color: string,
+        msg: string,
+        id:number,
+    };
 
     type Room = { usersMoves: Map<string, Move[]>; drawed: Move[]; users: Map<string, string>; };
     
@@ -16,10 +31,12 @@ export declare global{
         usersMoves: Map<string, Move[]>;
         movesWithoutUser: Move[];
         myMoves: Move[];
-        users: Map<string, string>;
+        users: Map<string, User>;
     }
 
     interface ServerToClientEvents{
+        your_move: (move: Move) => void;
+        new_msg: (userId: string, msg: string) => void;
         room_exist: (exist: boolean) => void;
         room: (room: Room,usersMovesToParse:string, usersToParse : string) => void;
         created: (room: string) => void;
@@ -40,5 +57,6 @@ export declare global{
         join_room: (room: string, username:string) => void;
         joined_room: () => void;
         leave_room: () => void;
+        send_msg: (msg: string) => void;
     }
 }

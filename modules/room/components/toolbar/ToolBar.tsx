@@ -1,4 +1,5 @@
 import ColorPicker from "./ColorPicker";
+import Eraser from "./Eraser";
 import LineWidthPicker from "./LineWidthPicker";
 import { IoMdColorFill } from "react-icons/io";
 
@@ -10,6 +11,7 @@ export const ToolBar = () => {
     >
       <ColorPicker />
       <LineWidthPicker />
+      <Eraser/>
       <button className="text-xl">
         <IoMdColorFill />
       </button>

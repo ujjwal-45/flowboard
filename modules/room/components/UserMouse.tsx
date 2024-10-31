@@ -3,10 +3,11 @@ import { UseBoardPosition } from "../hooks/UseBoardPosition"
 import { socket } from "@/common/lib/socket";
 import { motion } from "framer-motion";
 import { BsCursorFill } from "react-icons/bs";
+import { useRoom } from "@/common/recoil/room";
 
-const UserMouse = ({ userId, username }: { userId: string, username:string }) => {
+const UserMouse = ({ userId }: { userId: string }) => {
     const boardPosition = UseBoardPosition();
-    
+    const { users } = useRoom();
     const [x, setX] = useState(boardPosition.x.get());
     const [y, setY] = useState(boardPosition.y.get());
     const [pos, setPos] = useState({ x: -1, y: -1 });
@@ -39,7 +40,7 @@ const UserMouse = ({ userId, username }: { userId: string, username:string }) =>
             transition={{ duration: 0.1, ease: "linear" }}
         >
             <BsCursorFill className="-rotate-90" />
-            <p className="ml-2">{ username}</p>
+            <p className="ml-2">{ users.get(userId)?.name || "Anonymous"}</p>
         </motion.div>
     )
 };

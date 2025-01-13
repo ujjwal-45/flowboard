@@ -4,7 +4,7 @@ const UsersList = () => {
     const room = useRoom();
 
     return (
-        <div className="pointers-event-none z-10 flex absolute p-5">
+        <div className="pointers-event-none z-30 flex absolute p-5">
             {[...room.users.keys()].map((userId, index) => {
                 return (
                     <div key={userId} className="flex h-8 w-8 select-none justify-center items-center rounded-full text-white"

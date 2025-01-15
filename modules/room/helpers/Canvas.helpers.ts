@@ -1,60 +1,72 @@
-import { CANVAS_SIZE } from "@/common/constants/canvasSize";
+export const drawCircle = (ctx: CanvasRenderingContext2D, from: [number, number], x: number, y: number) => {
+  ctx.beginPath();
 
-export const handleMove = (move : Move, ctx: CanvasRenderingContext2D
+  const radius = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
+  ctx.arc(from[0], from[1], radius, 0, 2 * Math.PI);
+
+  ctx.stroke();
+  ctx.closePath();
+
+  return radius;
+}
+
+export const drawRect = (
+  ctx: CanvasRenderingContext2D,
+  from: [number, number],
+  x: number,
+  y: number,
+  shift? : boolean,
 ) => {
-  const { options, path } = move;
+  ctx.beginPath();
 
-  if (ctx) {
-    ctx.lineWidth = options.lineWidth;
-    ctx.strokeStyle = options.lineColor;
+  let width = 0;
+  let height = 0;
+  if (shift) {
+    const d = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
+    width = d / Math.sqrt(2);
+    height = d / Math.sqrt(2);
 
+    if (x - from[0] > 0 && y - from[1] < 0) {
+      height = -height;
+    }
+    else if (x - from[0] < 0 && y - from[1] > 0) {
+      width = -width;
+    }
+    else if (x - from[0] < 0 && y - from[1] < 0) {
+      width = -width;
+      height = -height;
+    }
+  }
+  else {
+    height = y - from[1];
+    width = x - from[0];
+  }
+  ctx.rect(from[0], from[1], width, height);
+
+  ctx.stroke();
+  ctx.closePath();
+
+  return {width, height};
+};
+
+
+export const drawLine = (
+  ctx: CanvasRenderingContext2D,
+  from: [number, number],
+  x: number,
+  y: number,
+  shift?: boolean
+) => {
+  
+  if (shift) {
     ctx.beginPath();
-
-    path.forEach(([x, y]) => {
-      ctx.lineTo(x, y);
-    });
+    ctx.lineTo(from[0], from[1]);
+    ctx.lineTo(x, y);
     ctx.stroke();
     ctx.closePath();
+    return;
   }
+
+  ctx.lineTo(x, y);
+  ctx.stroke();
 };
-
-export const drawAllMoves = (ctx: CanvasRenderingContext2D, room: ClientRoom) => {
-  
-  const {usersMoves, movesWithoutUser, myMoves } = room;
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-  drawBackground(ctx);
-
-  movesWithoutUser.forEach((move) => {
-    handleMove(move, ctx);
-  })
-
-  usersMoves.forEach((userMove) => {
-    userMove.forEach((move) => 
-      handleMove(move, ctx));
-  });
-
-  myMoves.forEach((move) => {
-    handleMove(move, ctx);
-  });
-};
-
-
-export const drawBackground = (ctx: CanvasRenderingContext2D) => {
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = "#ccc";
-
-  for (let i = 0; i < CANVAS_SIZE.height; i += 100){
-    ctx.beginPath();
-    ctx.moveTo(0,i);
-    ctx.lineTo(ctx.canvas.width, i);
-    ctx.stroke();
-  }
-
-  for (let i = 0; i < CANVAS_SIZE.width; i += 100){
-    ctx.beginPath();
-    ctx.moveTo(i,0);
-    ctx.lineTo(i,ctx.canvas.height);
-    ctx.stroke();
-  }
-}

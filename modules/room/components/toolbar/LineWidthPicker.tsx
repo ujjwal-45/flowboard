@@ -14,7 +14,7 @@ const LineWidthPicker = () => {
     useClickAway(ref, () => setOpened(false));
 
     return (
-      <div className="relative flex items-center" ref={ref}>
+      <div className="relative flex items-center text-slate-900" ref={ref}>
         <button className="text-xl" onClick={() => setOpened(!opened)}>
           <BsBorderWidth />
         </button>

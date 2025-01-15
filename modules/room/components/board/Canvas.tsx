@@ -1,31 +1,28 @@
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewPortSize } from "@/common/hooks/useViewPortSize";
 import { motion } from "framer-motion";
-import { useRef, useState, useEffect, RefObject, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useKeyPressEvent } from "react-use";
 import { useDraw } from "../../hooks/useDraw";
 import { useSocketDraw } from "../../hooks/useSocketDraw";
 import { socket } from "@/common/lib/socket";
 import Minimap from "./Minimap";
 import { UseBoardPosition } from "../../hooks/UseBoardPosition";
-import { useRoom } from "@/common/recoil/room";
-import { drawAllMoves } from "../../helpers/Canvas.helpers";
 import Background from "./Background";
-import { useOptionsValue } from "@/common/recoil/options";
 import { useRefs } from "../../hooks/UseRefs";
+import { useMovesHandlers } from "../../hooks/UseMovesHandlers";
 
 const Canvas = () => {
-  const room = useRoom();
-  const options = useOptionsValue();
 
   const { canvasRef, undoRef, bgRef } = useRefs();
-  const smallCanvasRef = useRef<HTMLCanvasElement>(null);
+  const { drawAllMoves, handleUndo } = useMovesHandlers();
 
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [dragging, setDragging] = useState(false);
   const [, setMovedMinimap] = useState(false);
 
   const { width, height } = useViewPortSize();
+  const { x, y } = UseBoardPosition();
 
   useKeyPressEvent("Control", (e) => {
     if (e.ctrlKey && !dragging) {
@@ -33,34 +30,12 @@ const Canvas = () => {
     }
   });
 
-  // const x = useMotionValue(0);
-  // const y = useMotionValue(0);
-
-  const { x, y } = UseBoardPosition();
-
-  const copyCanvasToSmall = useCallback(() => {
-    if (canvasRef.current && smallCanvasRef.current) {
-      const smallCtx = smallCanvasRef.current.getContext("2d");
-      if (smallCtx) {
-        smallCtx.clearRect(0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
-        smallCtx.drawImage(
-          canvasRef.current,
-          0,
-          0,
-          CANVAS_SIZE.width,
-          CANVAS_SIZE.height
-        );
-      }
-    }
-  }, [canvasRef, smallCanvasRef]);
-
   const {
     handleDraw,
     handleEndDrawing,
     handleStartDrawing,
-    handleUndo,
     drawing,
-  } = useDraw(ctx, dragging);
+  } = useDraw(dragging, drawAllMoves);
 
   useSocketDraw(ctx, drawing);
 
@@ -91,12 +66,6 @@ const Canvas = () => {
     }
   }, [ctx]);
 
-  useEffect(() => {
-    if (ctx) {
-      drawAllMoves(ctx, room, options);
-      copyCanvasToSmall();
-    }
-  }, [ctx, room]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -133,7 +102,6 @@ const Canvas = () => {
       />
       <Background bgRef={bgRef} />
       <Minimap
-        ref={smallCanvasRef}
         dragging={dragging}
         setMovedMinimap={setMovedMinimap}
       />

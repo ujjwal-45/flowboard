@@ -16,9 +16,9 @@ nextApp.prepare().then(async () => {
 
     const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
 
-    app.get("/healthy", async (_, res) => {
-        res.send("Health is important");
-    });
+    // app.get("/healthy", async (_, res) => {
+    //     res.send("Health is important");
+    // });
 
     const rooms = new Map<string, Room>();
 
@@ -38,16 +38,6 @@ nextApp.prepare().then(async () => {
         room?.usersMoves.get(socketId)?.pop();
     }
 
-    const leaveRoom = (roomId: string, socketId: string) => {
-        const room = rooms.get(roomId);
-
-        const userMoves = room?.usersMoves.get(socketId)!;
-        
-        room?.drawed.push(...userMoves);
-        room?.users.delete(socketId);
-
-        console.log(room);
-    }
 
     io.on("connection", (socket) => {
         
@@ -114,6 +104,23 @@ nextApp.prepare().then(async () => {
             socket.broadcast.to(roomId).emit("new_user", socket.id, room.users.get(socket.id) || "Anonymous");
         });
 
+        const leaveRoom = (roomId: string, socketId: string) => {
+          const room = rooms.get(roomId);
+
+          if (!room) return;
+
+          const userMoves = room.usersMoves.get(socketId)!;
+          if (userMoves) {
+            room.drawed.push(...userMoves);
+          }
+
+          room.users.delete(socketId);
+
+          socket.leave(roomId);
+
+          console.log(room);
+        };
+
         socket.on("leave_room", () => {
             const roomId = getRoomId();
 
@@ -123,10 +130,14 @@ nextApp.prepare().then(async () => {
         });
 
         socket.on("draw", (move) => {
-            console.log("drawing");
             const roomId = getRoomId();
-            addMove(roomId, socket.id, move);
-            socket.broadcast.to(roomId).emit("user_draw", move, socket.id);
+            const timeStamp = Date.now();
+            addMove(roomId, socket.id, { ...move, timeStamp });
+
+            io.to(socket.id).emit("your_move", { ...move, timeStamp });
+            socket.broadcast
+              .to(roomId)
+              .emit("user_draw", { ...move, timeStamp }, socket.id);
             
         });
 
@@ -135,6 +146,10 @@ nextApp.prepare().then(async () => {
             const roomId = getRoomId();
             undoMove(roomId, socket.id);
             socket.broadcast.to(roomId).emit("user_undo", socket.id);
+        })
+
+        socket.on("send_msg", (msg) => {
+            io.to(getRoomId()).emit("new_msg", socket.id, msg);
         })
 
         socket.on("mouse_move", (x, y) => {

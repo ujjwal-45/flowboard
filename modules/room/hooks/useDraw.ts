@@ -35,8 +35,8 @@ export const useDraw = (
     
     const setCtxOptions = () => {
         if (ctx) {
-            ctx.lineJoin = "round";
-            ctx.lineCap = "round";
+            // ctx.lineJoin = "round";
+            // ctx.lineCap = "round";
             ctx.lineWidth = options.lineWidth;
             ctx.strokeStyle = options.lineColor;
             if (options.erase) {

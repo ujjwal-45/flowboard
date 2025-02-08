@@ -31,7 +31,7 @@ const ImageChooser = () => {
     };
 
     return (
-        <button className="text-xl" onClick={handleInput}>
+        <button className="text-xl text-black" onClick={handleInput}>
             <BsFillImageFill />
         </button>
     )

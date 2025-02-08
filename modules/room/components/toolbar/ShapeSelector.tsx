@@ -23,7 +23,7 @@ const ShapeSelector = () => {
 
 
     return (
-      <div className="relative flex items-center" ref={ref}>
+      <div className="relative flex items-center text-black" ref={ref}>
         <button className="text-xl" onClick={() => setOpened((prev) => !prev)}>
           {options.shape === "circle" && <FaCircle />}
           {options.shape === "line" && <FaLine />}

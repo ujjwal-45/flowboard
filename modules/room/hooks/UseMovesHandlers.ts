@@ -1,7 +1,8 @@
 import { useMyMoves, useRoom } from "@/common/recoil/room";
 import { useRefs } from "./UseRefs";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { socket } from "@/common/lib/socket";
+import{UseCtx} from "./useCtx"
 
 
 let prevMovesLength = 0;
@@ -10,13 +11,9 @@ export const useMovesHandlers = () => {
   const { canvasRef, minimapRef } = useRefs();
   const { handleAddMyMove, handleRemoveMyMove } = useMyMoves();
   const room = useRoom();
+  const ctx = UseCtx();
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
-
-  useEffect(() => {
-    const newCtx = canvasRef.current?.getContext("2d");
-    if (newCtx) setCtx(newCtx);
-  }, [canvasRef]);
+  
 
   const sortedMoves = useMemo(() => {
     const { usersMoves, movesWithoutUser, myMoves } = room;
@@ -85,8 +82,9 @@ export const useMovesHandlers = () => {
             break;
 
           case "circle":
+            
             ctx?.beginPath();
-            ctx?.arc(path[0][0], path[0][1], move.radius, 0, 2 * Math.PI);
+            ctx?.ellipse(path[0][0], path[0][1], move.radius,0,0,0, 2 * Math.PI);
             ctx?.stroke();
             ctx?.closePath();
             break;
@@ -137,10 +135,10 @@ export const useMovesHandlers = () => {
         return () => {
             prevMovesLength = sortedMoves.length;
         }
-    }, [sortedMoves]);
+    }, [sortedMoves, drawAllMoves, drawMove]);
 
     const handleUndo = () => {
-        if (ctx) {
+      if (ctx) {
             handleRemoveMyMove();
             socket.emit("undo");
         }

@@ -48,7 +48,7 @@ export const ToolBar = () => {
       <button className="text-xl text-black">
         <IoMdColorFill />
       </button>
-      <button className="text-xl text-black">
+      {/* <button className="text-xl text-black">
         <IoMdColorFill />
       </button>
       <button className="text-xl text-black">
@@ -56,7 +56,7 @@ export const ToolBar = () => {
       </button>
       <button className="text-xl text-black">
         <IoMdColorFill />
-      </button>
+      </button> */}
       <button className="text-xl text-black" onClick={handleDownload}>
         <BsDownload />
       </button>
